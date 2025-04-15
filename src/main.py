@@ -30,6 +30,19 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
+def handle_resolved_ips(query_name, ip_addresses):
+    """
+    Пример функции для обработки разрешенных IP-адресов.
+
+    Args:
+        query_name: Имя DNS-запроса
+        ip_addresses: Список полученных IP-адресов
+    """
+    logger.info(f"Обработка IP-адресов для {query_name}: {ip_addresses}")
+    # Здесь можно добавить дополнительную логику обработки IP-адресов
+    # Например, сохранение в базу данных, анализ или фильтрацию
+
+
 async def start_dns_proxy(host, port, upstream_server, upstream_port):
     """
     Запускает DNS прокси сервер.
@@ -45,7 +58,11 @@ async def start_dns_proxy(host, port, upstream_server, upstream_port):
 
     # Создаем транспорт и связываем с протоколом
     transport, protocol = await loop.create_datagram_endpoint(
-        lambda: DNSProxyProtocol(upstream_server, upstream_port),
+        lambda: DNSProxyProtocol(
+            upstream_server,
+            upstream_port,
+            process_resolved_ips_callback=handle_resolved_ips,
+        ),
         local_addr=(host, port),
     )
 

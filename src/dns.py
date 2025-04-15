@@ -2,24 +2,34 @@ import asyncio
 import logging
 import socket
 import time
+from collections.abc import Callable
 
-from dnslib import DNSError, DNSRecord
+from dnslib import QTYPE, DNSError, DNSRecord
 
 logger = logging.getLogger(__name__)
 
 
 class DNSProxyProtocol:
-    def __init__(self, upstream_server, upstream_port=53):
+    def __init__(
+        self,
+        upstream_server,
+        upstream_port=53,
+        process_resolved_ips_callback: Callable[[str, list[str]], None] | None = None,
+    ):
         """
         Инициализация DNS прокси.
 
         Args:
             upstream_server: IP-адрес вышестоящего DNS сервера
             upstream_port: Порт вышестоящего DNS сервера (по умолчанию 53)
+            process_resolved_ips_callback: Функция обратного вызова для обработки
+                                          разрешенных IP-адресов после отправки ответа клиенту.
+                                          Принимает имя запроса (str) и список IP-адресов (List[str])
         """
         self.upstream_server = upstream_server
         self.upstream_port = upstream_port
         self.transport = None
+        self.process_resolved_ips_callback = process_resolved_ips_callback
 
     def connection_made(self, transport):
         """Вызывается при установке соединения с клиентом"""
@@ -82,6 +92,20 @@ class DNSProxyProtocol:
                         f"{client_ip} - ОТВЕТ  - {query_name} - "
                         f"(ответов: {answer_count}, время: {elapsed_time:.2f} мс)"
                     )
+
+                    # Извлекаем IP-адреса из ответа
+                    ip_addresses = []
+                    for rr in response.rr:
+                        # Для A записей получаем IP-адреса
+                        if rr.rtype in (QTYPE.A,):
+                            ip_addresses.append(str(rr.rdata))
+
+                    # Вызываем функцию для обработки полученных IP-адресов, если она задана
+                    if ip_addresses and self.process_resolved_ips_callback:
+                        self.process_resolved_ips_callback(
+                            str(query_name), ip_addresses
+                        )
+
                 except DNSError:
                     logger.warning(f"Не удалось распарсить ответ для {query_name}")
             else:
