@@ -32,6 +32,16 @@ class DNSProxyProtocol:
         """Вызывается при установке соединения с клиентом"""
         self.transport = transport
 
+    def connection_lost(self, exc):
+        """Вызывается при закрытии соединения с клиентом
+
+        Args:
+            exc: Исключение, вызвавшее закрытие соединения, или None
+        """
+        if exc:
+            logger.warning(f"Соединение закрыто с ошибкой: {exc}")
+        self.transport = None
+
     def datagram_received(self, data, addr):
         """
         Вызывается при получении запроса от клиента.
