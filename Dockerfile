@@ -14,7 +14,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 COPY src/ ./src/
 
-RUN uv install --no-cache-dir
+RUN uv sync
 
 EXPOSE 53/udp
 
