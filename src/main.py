@@ -1,16 +1,33 @@
 import argparse
 import asyncio
 import logging
+import os
 import socket
 import time
+from logging.handlers import TimedRotatingFileHandler
 
 from dnslib import DNSError, DNSRecord
 
-# Настройка логирования
+# Путь для хранения логов
+log_directory = "/var/log/dns-proxy"
+log_file = os.path.join(log_directory, "dns_queries.log")
+
+# Создаем директорию для логов, если она не существует
+os.makedirs(log_directory, exist_ok=True)
+
+# Настройка логирования с ротацией раз в неделю
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("dns_queries.log"), logging.StreamHandler()],
+    handlers=[
+        TimedRotatingFileHandler(
+            log_file,
+            when="W0",  # W0 означает каждый понедельник
+            interval=1,  # Интервал - 1 неделя
+            backupCount=52,  # Хранить 52 предыдущих лога
+        ),
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger("dns-proxy")
 
