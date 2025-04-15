@@ -1,0 +1,32 @@
+{
+	"name": "dns-proxy",
+	"build": {
+		"context": "..",
+		"dockerfile": "Dockerfile"
+	},
+	"runArgs": [
+		"--name=dns-proxy"
+	],
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				// для работы на Python
+				"ms-python.python",
+				"ms-python.vscode-python-envs",
+				"tamasfe.even-better-toml",
+				"charliermarsh.ruff",
+
+				// Словари для проверки орфографии
+				"streetsidesoftware.code-spell-checker",
+				"streetsidesoftware.code-spell-checker-russian",
+
+				// git
+				"donjayamanne.githistory",
+				
+				// Показывает последнии версии пакетов pip
+				"twixes.pypi-assistant"				
+			]
+		}
+	}
+}

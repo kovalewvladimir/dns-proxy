@@ -1,0 +1,33 @@
+[project]
+name = "dns-proxy"
+version = "0.1.0"
+description = "Асинхронный DNS прокси сервер"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dnslib>=0.9.26",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.5",
+]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 120
